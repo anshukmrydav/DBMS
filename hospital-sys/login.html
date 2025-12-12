@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - MediCore</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            /* Branded Background */
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%), url('assets/hero_illustration.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            color: var(--primary);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-card">
+        <div class="mb-4" style="text-align: left; position: absolute; top: 1.5rem; left: 1.5rem;">
+            <a href="index.html" class="text-sm" style="color: var(--text-muted); text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Home
+            </a>
+        </div>
+
+        <div class="auth-header" style="margin-top: 2rem;">
+            <i class="fas fa-hospital-alt brand-icon"></i>
+            <h1 class="font-bold" style="font-size: 2rem; color: var(--text-main); margin-bottom: 0.5rem;">MediCore</h1>
+            <p id="auth-subtitle" class="text-muted" style="margin-bottom: 0.5rem;">Sign In to your account</p>
+            <p id="auth-toggle-text-helper" class="text-sm text-muted">Manage your hospital operations efficiently</p>
+        </div>
+
+        <form id="auth-form" class="flex-col gap-4" style="text-align: left;">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="name@medicore.com" required
+                    style="padding: 0.875rem;">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="••••••••" required
+                    style="padding: 0.875rem;">
+            </div>
+
+            <div id="auth-error" class="text-danger text-sm hidden mb-4"
+                style="background: #fef2f2; padding: 0.75rem; border-radius: 6px; border: 1px solid #fee2e2;"></div>
+
+            <button type="submit" id="auth-submit-btn" class="btn btn-primary w-full"
+                style="padding: 0.875rem; font-size: 1rem;">
+                Sign In
+            </button>
+
+            <p class="text-sm" style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+                <span id="auth-toggle-text">Don't have an account?</span>
+                <a href="#" id="auth-toggle-link"
+                    style="color: var(--primary); text-decoration: none; font-weight: 600;">Sign up for free</a>
+            </p>
+        </form>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

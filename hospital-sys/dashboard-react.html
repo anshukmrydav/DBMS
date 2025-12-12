@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCore | Dashboard</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f5f7fa;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <!-- React Application -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // ============================================
+        // MOCK DATA
+        // ============================================
+        const MOCK_DATA = {
+            stats: {
+                totalPatients: 1240,
+                availableDoctors: 45,
+                surgeries: 12,
+                earnings: 42000
+            },
+            patientFlow: [
+                { day: 'Mon', count: 45 },
+                { day: 'Tue', count: 52 },
+                { day: 'Wed', count: 38 },
+                { day: 'Thu', count: 61 },
+                { day: 'Fri', count: 55 },
+                { day: 'Sat', count: 42 },
+                { day: 'Sun', count: 35 }
+            ],
+            departmentSplit: [
+                { name: 'Cardiology', value: 35, color: '#3b82f6' },
+                { name: 'Neurology', value: 28, color: '#8b5cf6' },
+                { name: 'Orthopedics', value: 22, color: '#06b6d4' },
+                { name: 'Pediatrics', value: 15, color: '#10b981' }
+            ],
+            patients: [
+                { id: 'P001', name: 'John Doe', age: 45, condition: 'Hypertension', status: 'Admitted', date: '2025-12-10' },
+                { id: 'P002', name: 'Jane Smith', age: 32, condition: 'Diabetes', status: 'Admitted', date: '2025-12-09' },
+                { id: 'P003', name: 'Mike Johnson', age: 58, condition: 'Heart Disease', status: 'Discharged', date: '2025-12-08' },
+                { id: 'P004', name: 'Sarah Williams', age: 28, condition: 'Pregnancy Care', status: 'Admitted', date: '2025-12-11' },
+                { id: 'P005', name: 'David Brown', age: 67, condition: 'Stroke', status: 'Admitted', date: '2025-12-07' },
+                { id: 'P006', name: 'Emily Davis', age: 41, condition: 'Fracture', status: 'Discharged', date: '2025-12-12' }
+            ],
+            doctors: [
+                { id: 'D001', name: 'Dr. Robert Chen', specialty: 'Cardiologist', status: 'Available', patients: 23 },
+                { id: 'D002', name: 'Dr. Sarah Miller', specialty: 'Neurologist', status: 'Available', patients: 18 },
+                { id: 'D003', name: 'Dr. James Wilson', specialty: 'Orthopedic', status: 'Busy', patients: 31 },
+                { id: 'D004', name: 'Dr. Maria Garcia', specialty: 'Pediatrician', status: 'Available', patients: 27 },
+                { id: 'D005', name: 'Dr. Ahmed Hassan', specialty: 'Surgeon', status: 'Available', patients: 15 },
+                { id: 'D006', name: 'Dr. Lisa Anderson', specialty: 'Gynecologist', status: 'Busy', patients: 19 }
+            ]
+        };
+        
+        // ============================================
+        // COMPONENTS
+        // ============================================
+        
+        // Sidebar Component
+        function Sidebar({ activeTab, setActiveTab, isSidebarOpen }) {
+            const menuItems = [
+                { id: 'analytics', label: 'Analytics', icon: 'fa-chart-line' },
+                { id: 'patients', label: 'Patients', icon: 'fa-user-injured' },
+                { id: 'doctors', label: 'Doctors', icon: 'fa-user-md' },
+                { id: 'records', label: 'Records', icon: 'fa-file-medical' },
+                { id: 'billing', label: 'Billing', icon: 'fa-file-invoice-dollar' },
+                { id: 'settings', label: 'Settings', icon: 'fa-cog' }
+            ];
+            
+            return (
+                <aside className={`fixed top-0 left-0 h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 z-40 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+                    <div className="p-6 border-b border-slate-700">
+                        <div className="flex items-center gap-3">
+                            <i className="fas fa-hospital-alt text-2xl text-cyan-400"></i>
+                            {isSidebarOpen && <span className="text-xl font-bold">MediCore</span>}
+                        </div>
+                    </div>
+                    
+                    <nav className="mt-8">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveTab(item.id)}
+                                className={`w-full flex items-center gap-4 px-6 py-4 transition-all hover:bg-slate-700 ${
+                                    activeTab === item.id ? 'bg-cyan-600 border-r-4 border-cyan-400' : ''
+                                }`}
+                            >
+                                <i className={`fas ${item.icon} text-lg w-5`}></i>
+                                {isSidebarOpen && <span className="font-medium">{item.label}</span>}
+                            </button>
+                        ))}
+                    </nav>
+                </aside>
+            );
+        }
+        
+        // TopBar Component
+        function TopBar({ toggleSidebar, isSidebarOpen }) {
+            return (
+                <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={toggleSidebar}
+                            className="text-slate-600 hover:text-slate-900 text-xl"
+                        >
+                            <i className="fas fa-bars"></i>
+                        </button>
+                        <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-lg">
+                            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                                A
+                            </div>
+                            <span className="font-semibold text-slate-700">Admin</span>
+                        </div>
+                        <button className="text-slate-600 hover:text-slate-900">
+                            <i className="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </header>
+            );
+        }
+        
+        // StatCard Component
+        function StatCard({ title, value, icon, color, trend }) {
+            return (
+                <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow animate-slide-in">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-slate-500 text-sm font-medium mb-1">{title}</p>
+                            <h3 className="text-3xl font-bold text-slate-800">{value}</h3>
+                            {trend && (
+                                <p className="text-green-600 text-sm font-semibold mt-2">
+                                    <i className="fas fa-arrow-up mr-1"></i>
+                                    {trend}
+                                </p>
+                            )}
+                        </div>
+                        <div className={`w-14 h-14 ${color} rounded-full flex items-center justify-center text-white text-2xl`}>
+                            <i className={`fas ${icon}`}></i>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Analytics/Dashboard Component
+        function Analytics() {
+            useEffect(() => {
+                // Patient Flow Line Chart
+                const flowCtx = document.getElementById('patientFlowChart');
+                if (flowCtx) {
+                    new Chart(flowCtx, {
+                        type: 'line',
+                        data: {
+                            labels: MOCK_DATA.patientFlow.map(d => d.day),
+                            datasets: [{
+                                label: 'Patient Count',
+                                data: MOCK_DATA.patientFlow.map(d => d.count),
+                                borderColor: '#0891b2',
+                                backgroundColor: 'rgba(8, 145, 178, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#0891b2',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#1e293b',
+                                    padding: 12,
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { color: '#64748b' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#64748b' }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Department Split Doughnut Chart
+                const splitCtx = document.getElementById('departmentSplitChart');
+                if (splitCtx) {
+                    new Chart(splitCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: MOCK_DATA.departmentSplit.map(d => d.name),
+                            datasets: [{
+                                data: MOCK_DATA.departmentSplit.map(d => d.value),
+                                backgroundColor: MOCK_DATA.departmentSplit.map(d => d.color),
+                                borderWidth: 0,
+                                hoverOffset: 10
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        font: { size: 13 },
+                                        color: '#1e293b',
+                                        usePointStyle: true
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: '#1e293b',
+                                    padding: 12,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, []);
+            
+            return (
+                <div className="space-y-6 animate-slide-in">
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <StatCard 
+                            title="Total Patients" 
+                            value={MOCK_DATA.stats.totalPatients.toLocaleString()} 
+                            icon="fa-users" 
+                            color="bg-gradient-to-br from-blue-500 to-blue-600"
+                            trend="+12%"
+                        />
+                        <StatCard 
+                            title="Available Doctors" 
+                            value={MOCK_DATA.stats.availableDoctors} 
+                            icon="fa-user-md" 
+                            color="bg-gradient-to-br from-purple-500 to-purple-600"
+                            trend="+5%"
+                        />
+                        <StatCard 
+                            title="Surgeries" 
+                            value={MOCK_DATA.stats.surgeries} 
+                            icon="fa-procedures" 
+                            color="bg-gradient-to-br from-cyan-500 to-cyan-600"
+                            trend="Today"
+                        />
+                        <StatCard 
+                            title="Earnings" 
+                            value={`$${(MOCK_DATA.stats.earnings / 1000)}k`} 
+                            icon="fa-dollar-sign" 
+                            color="bg-gradient-to-br from-green-500 to-green-600"
+                            trend="+18%"
+                        />
+                    </div>
+                    
+                    {/* Charts Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Patient Flow Chart */}
+                        <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-bold text-slate-800">
+                                    <i className="fas fa-chart-line text-cyan-600 mr-2"></i>
+                                    Patient Flow
+                                </h3>
+                                <span className="text-xs text-slate-500 font-medium">Last 7 Days</span>
+                            </div>
+                            <div style={{ height: '300px' }}>
+                                <canvas id="patientFlowChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        {/* Department Split Chart */}
+                        <div className="bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-bold text-slate-800">
+                                    <i className="fas fa-chart-pie text-purple-600 mr-2"></i>
+                                    Department Split
+                                </h3>
+                            </div>
+                            <div style={{ height: '300px' }}>
+                                <canvas id="departmentSplitChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Additional Metrics */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-slate-500 text-sm mb-1">Avg. Visit Duration</p>
+                                    <h4 className="text-2xl font-bold text-slate-800">45 min</h4>
+                                    <p className="text-green-600 text-xs font-semibold mt-2">
+                                        <i className="fas fa-arrow-up mr-1"></i> 5% vs last week
+                                    </p>
+                                </div>
+                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i className="fas fa-clock text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-slate-500 text-sm mb-1">Patient Satisfaction</p>
+                                    <h4 className="text-2xl font-bold text-slate-800">4.8/5</h4>
+                                    <p className="text-green-600 text-xs font-semibold mt-2">
+                                        <i className="fas fa-arrow-up mr-1"></i> Excellent
+                                    </p>
+                                </div>
+                                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i className="fas fa-star text-purple-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-cyan-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-slate-500 text-sm mb-1">Bed Occupancy</p>
+                                    <h4 className="text-2xl font-bold text-slate-800">78%</h4>
+                                    <p className="text-orange-600 text-xs font-semibold mt-2">
+                                        <i className="fas fa-minus mr-1"></i> 2% vs yesterday
+                                    </p>
+                                </div>
+                                <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+                                    <i className="fas fa-bed text-cyan-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Patients Component
+        function Patients() {
+            return (
+                <div className="animate-slide-in">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                            <i className="fas fa-users text-cyan-600 mr-2"></i>
+                            Patients Management
+                        </h2>
+                        
+                        {/* Search Bar */}
+                        <div className="mb-6">
+                            <input 
+                                type="text" 
+                                placeholder="Search patients..." 
+                                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            />
+                        </div>
+                        
+                        {/* Patients Table */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b-2 border-slate-200">
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">ID</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Name</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Age</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Condition</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Date</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {MOCK_DATA.patients.map(patient => (
+                                        <tr key={patient.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
+                                            <td className="py-3 px-4 text-slate-600 font-mono text-sm">{patient.id}</td>
+                                            <td className="py-3 px-4 font-semibold text-slate-800">{patient.name}</td>
+                                            <td className="py-3 px-4 text-slate-600">{patient.age}</td>
+                                            <td className="py-3 px-4 text-slate-600">{patient.condition}</td>
+                                            <td className="py-3 px-4 text-slate-600 text-sm">{patient.date}</td>
+                                            <td className="py-3 px-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                                    patient.status === 'Admitted' 
+                                                        ? 'bg-green-100 text-green-700' 
+                                                        : 'bg-slate-200 text-slate-700'
+                                                }`}>
+                                                    {patient.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Doctors Component
+        function Doctors() {
+            return (
+                <div className="animate-slide-in">
+                    <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                        <i className="fas fa-user-md text-cyan-600 mr-2"></i>
+                        Doctors Directory
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {MOCK_DATA.doctors.map(doctor => (
+                            <div key={doctor.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+                                <div className="flex items-start gap-4 mb-4">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                                        {doctor.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold text-slate-800">{doctor.name}</h3>
+                                        <p className="text-slate-600 text-sm mb-2">{doctor.specialty}</p>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                            doctor.status === 'Available' 
+                                                ? 'bg-green-100 text-green-700' 
+                                                : 'bg-orange-100 text-orange-700'
+                                        }`}>
+                                            <i className="fas fa-circle text-xs mr-1"></i>
+                                            {doctor.status}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between py-3 border-t border-slate-200 mb-4">
+                                    <span className="text-slate-600 text-sm">Patients</span>
+                                    <span className="font-bold text-slate-800">{doctor.patients}</span>
+                                </div>
+                                
+                                <button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                                    <i className="fas fa-calendar-check mr-2"></i>
+                                    Book Appointment
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        
+        // Records Component
+        function Records() {
+            return (
+                <div className="animate-slide-in">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                            <i className="fas fa-file-medical text-cyan-600 mr-2"></i>
+                            Medical Records
+                        </h2>
+                        <p className="text-slate-600">Medical records and reports will be displayed here.</p>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Billing Component
+        function Billing() {
+            return (
+                <div className="animate-slide-in">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                            <i className="fas fa-file-invoice-dollar text-cyan-600 mr-2"></i>
+                            Billing & Payments
+                        </h2>
+                        <p className="text-slate-600">Financial records and payment information will be displayed here.</p>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Settings Component
+        function Settings() {
+            const generateSampleData = () => {
+                alert('Sample data generated successfully!');
+            };
+            
+            return (
+                <div className="animate-slide-in">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                            <i className="fas fa-cog text-cyan-600 mr-2"></i>
+                            Settings
+                        </h2>
+                        
+                        <div className="space-y-4">
+                            <button 
+                                onClick={generateSampleData}
+                                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md"
+                            >
+                                <i className="fas fa-database mr-2"></i>
+                                Generate Sample Data
+                            </button>
+                            
+                            <div className="mt-6 p-4 bg-slate-100 rounded-lg">
+                                <p className="text-slate-700">
+                                    <i className="fas fa-info-circle text-cyan-600 mr-2"></i>
+                                    Click the button above to populate the database with sample data for testing.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Main App Component
+        function App() {
+            const [activeTab, setActiveTab] = useState('analytics');
+            const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+            
+            const toggleSidebar = () => {
+                setIsSidebarOpen(!isSidebarOpen);
+            };
+            
+            const renderContent = () => {
+                switch (activeTab) {
+                    case 'analytics':
+                        return <Analytics />;
+                    case 'patients':
+                        return <Patients />;
+                    case 'doctors':
+                        return <Doctors />;
+                    case 'records':
+                        return <Records />;
+                    case 'billing':
+                        return <Billing />;
+                    case 'settings':
+                        return <Settings />;
+                    default:
+                        return <Analytics />;
+                }
+            };
+            
+            return (
+                <div className="min-h-screen bg-slate-50">
+                    <Sidebar 
+                        activeTab={activeTab} 
+                        setActiveTab={setActiveTab}
+                        isSidebarOpen={isSidebarOpen}
+                    />
+                    
+                    <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+                        <TopBar 
+                            toggleSidebar={toggleSidebar}
+                            isSidebarOpen={isSidebarOpen}
+                        />
+                        
+                        <main className="p-6">
+                            {renderContent()}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Render the App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
