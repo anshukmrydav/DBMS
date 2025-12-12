@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - MediCore</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .service-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="landing-nav">
+        <a href="index.html" class="brand" style="text-decoration: none; display: flex; align-items: center;">
+            <i class="fas fa-hospital-alt fa-lg"></i>
+            <span class="font-bold text-xl" style="margin-left: 0.5rem; color: var(--text-main);">MediCore</span>
+        </a>
+        <div class="landing-links">
+            <a href="about.html">About</a>
+            <a href="services.html" style="color: var(--primary);">Services</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <h1 class="font-bold" style="font-size: 3rem;">Our Services</h1>
+        <p style="opacity: 0.9; font-size: 1.25rem;">Comprehensive Solutions for Modern Healthcare</p>
+    </header>
+
+    <div class="service-grid">
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-notes-medical"
+                    style="color: var(--primary); font-size: 1.5rem;"></i></div>
+            <h3 class="font-bold text-xl mb-2">Electronic Health Records (EHR)</h3>
+            <p class="text-muted">Secure, cloud-based patient records that are accessible instantly. Support for
+                imaging, lab results, and history.</p>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-user-md" style="color: var(--success); font-size: 1.5rem;"></i>
+            </div>
+            <h3 class="font-bold text-xl mb-2">Staff Management</h3>
+            <p class="text-muted">Optimize shift scheduling, track performance, and manage payroll for doctors, nurses,
+                and administrative staff.</p>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-file-invoice-dollar"
+                    style="color: var(--danger); font-size: 1.5rem;"></i></div>
+            <h3 class="font-bold text-xl mb-2">Billing & Invoicing</h3>
+            <p class="text-muted">Automated billing workflows, insurance claim processing, and financial reporting to
+                ensure revenue cycle health.</p>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-pills" style="color: #8b5cf6; font-size: 1.5rem;"></i></div>
+            <h3 class="font-bold text-xl mb-2">Pharmacy & Inventory</h3>
+            <p class="text-muted">Real-time tracking of medication stock, automated reordering, and prescription
+                management.</p>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-ambulance" style="color: #ef4444; font-size: 1.5rem;"></i></div>
+            <h3 class="font-bold text-xl mb-2">Emergency Response</h3>
+            <p class="text-muted">Triage management and ambulance tracking systems to minimize response times in
+                critical situations.</p>
+        </div>
+
+        <div class="service-item">
+            <div class="service-icon"><i class="fas fa-chart-line" style="color: #f59e0b; font-size: 1.5rem;"></i></div>
+            <h3 class="font-bold text-xl mb-2">Data Analytics</h3>
+            <p class="text-muted">Actionable insights into hospital operations, patient outcomes, and financial
+                performance.</p>
+        </div>
+    </div>
+
+    <footer style="background: #1e293b; color: white; padding: 2rem; text-align: center;">
+        <p>&copy; 2025 MediCore Systems. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
